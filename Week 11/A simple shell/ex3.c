@@ -23,30 +23,56 @@ char** parse_tokens(char* cline) {
     return args;
 }
 
+void exit_program() {
+    exit(0);
+}
+
+void handler(int sig) {
+    int status;
+    waitpid(-1, &status, 1);
+}
+
 int main(int argc, char const **argv)
 {
     char cline[BUFFERSIZE];
     char **args;
     int pid;
+    int background;
+    int status;
+
+    signal (SIGCHLD, handler);
 
     while (1) {
+        
         printf("> ");
+        alarm(15);
         fgets(cline,BUFFERSIZE,stdin);
         cline[strcspn(cline, "\n")] = 0;
         args = parse_tokens(cline);
 
         if (!strcmp(args[0], "exit")) {
-            exit(0);
+            exit_program();
+        }
+
+        for (int i = 0; args[i] != NULL; i++) {
+            if (!strcmp(args[i], "&")) {
+                args[i] = NULL;
+                background = 1;
+            }
         }
 
         switch (pid = fork()) {
         case -1:
             perror("Error in fork");
             exit(1);
-        case 0:    
+        case 0:
             execvp(args[0], args);
         default:
-            wait(NULL);
+            if (background) {
+                waitpid(pid, &status, 0);
+            } else {
+                wait(NULL);
+            }
         }
     }
     
