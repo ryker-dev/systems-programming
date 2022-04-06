@@ -40,9 +40,18 @@ int main(int argc, char * * argv)
         break;
     default:              /* parent process */
         close(fd[PIPE_WRITE]);
-        while (read(fd[PIPE_READ], buffer, BUFSIZE - 1) > 0) {
+
+        int chars;
+        while ((chars = read(fd[PIPE_READ], buffer, BUFSIZE - 1)) > 0) {
+            if (chars < BUFSIZE - 1) {
+                for(int i=0; i<chars; i++) {
+                    printf("%c", buffer[i]);
+                }
+            break;
+            }
             printf("%s", buffer);
         }
+
         close(fd[PIPE_READ]);
         break;
     }
