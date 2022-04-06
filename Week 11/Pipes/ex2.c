@@ -17,7 +17,7 @@ int main(int argc, char * * argv)
     int fd[2];
     pipe(fd);
 	
-	char command[256];
+	char command[BUFSIZE];
 
 	command[0]='\0';
 	/* concatenate arguments to one long string */
@@ -40,12 +40,12 @@ int main(int argc, char * * argv)
         break;
     default:              /* parent process */
         close(fd[PIPE_WRITE]);
-        read(fd[PIPE_READ], buffer, BUFSIZE);
-        printf("Read from pipe:\n%s", buffer);
+        while (read(fd[PIPE_READ], buffer, BUFSIZE - 1) > 0) {
+            printf("%s", buffer);
+        }
         close(fd[PIPE_READ]);
         break;
     }
 	
 	return 0;
 }
-
