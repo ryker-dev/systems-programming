@@ -27,6 +27,7 @@ void exit_program() {
     exit(0);
 }
 
+// Handler method taken from linuxartisan on GitHub.com
 void handler(int sig) {
     int status;
     waitpid(-1, &status, 1);
@@ -46,7 +47,7 @@ int main(int argc, char const **argv)
         
         printf("> ");
         alarm(15);
-        fgets(cline,BUFFERSIZE,stdin);
+        fgets(cline, BUFFERSIZE, stdin);
         cline[strcspn(cline, "\n")] = 0;
         args = parse_tokens(cline);
 
